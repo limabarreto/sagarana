@@ -1,0 +1,116 @@
+// 1. Configuração do Banco de Dados e Gerador
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+// 2. Enum para Papéis de Usuário (Permissões)
+enum UserRole {
+  CLIENTE // Pode escrever resenhas e comentar
+  ADMIN   // Pode cadastrar livros, eventos e moderar
+}
+
+// 3. Modelo User (Usuário da Plataforma)
+model User {
+  id              Int       @id @default(autoincrement())
+  email           String    @unique
+  name            String
+  password        String
+  role            UserRole  @default(CLIENTE)
+
+  // CLIENTE pode escrever resenhas e comentários
+  reviews         Review[]
+  comments        Comment[]
+
+  // ADMIN pode cadastrar eventos e livros
+  submittedEvents Event[]
+  submittedBooks  Book[]    @relation("AdminSubmittedBooks")
+
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+}
+
+// 4. Modelo Book (Catálogo de Obras)
+model Book {
+  id              Int       @id @default(autoincrement())
+  title           String    @db.VarChar(255)
+  author          String    @db.VarChar(255)
+  isbn            String?   @unique
+  publisher       String?
+  pages           Int?
+  language        String?
+  synopsis        String
+  itemType        String    @default("BOOK") // BOOK, ARTICLE, THESIS etc.
+
+  // Apenas ADMIN submete livros
+  submittedById   Int
+  submittedBy     User      @relation("AdminSubmittedBooks", fields: [submittedById], references: [id])
+
+  // Campo de moderação
+  isApproved      Boolean   @default(true)
+
+  reviews         Review[]
+
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+}
+
+// 5. Modelo Review (Resenha)
+model Review {
+  id              Int       @id @default(autoincrement())
+  content         String
+  rating          Int
+
+  authorId        Int
+  author          User      @relation(fields: [authorId], references: [id])
+
+  bookId          Int
+  book            Book      @relation(fields: [bookId], references: [id])
+
+  isApproved      Boolean   @default(false)
+
+  comments        Comment[]
+
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+}
+
+// 6. Modelo Comment (Comentários)
+model Comment {
+  id              Int       @id @default(autoincrement())
+  content         String
+
+  authorId        Int
+  author          User      @relation(fields: [authorId], references: [id])
+
+  reviewId        Int
+  review          Review    @relation(fields: [reviewId], references: [id])
+
+  parentId        Int?
+  parent          Comment?  @relation("CommentReplies", fields: [parentId], references: [id])
+  replies         Comment[] @relation("CommentReplies")
+
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+}
+
+// 7. Modelo Event (Eventos Universitários)
+model Event {
+  id              Int       @id @default(autoincrement())
+  title           String    @db.VarChar(255)
+  description     String
+  eventDate       DateTime
+  location        String    @db.VarChar(255)
+
+  submittedById   Int
+  submittedBy     User      @relation(fields: [submittedById], references: [id])
+
+  isApproved      Boolean   @default(false)
+
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+}
