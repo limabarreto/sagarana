@@ -1,12 +1,24 @@
-// userRoutes.js — responsável por organizar todas as rotas relacionadas aos usuários
-// aqui conectamos cada rota a uma função do controller correspondente
+// src/routes/userRoutes.js
+import express from 'express';
+import * as userController from '../controllers/userController.js'; 
+import { authenticateToken, checkRole } from '../middleware/authMiddleware.js';
+import { UserRole } from '@prisma/client'; 
 
-import { Router } from 'express';
-import { getAllUsers } from '../controllers/userController.js';
+const router = express.Router();
 
-const router = Router();
+// 1. Rotas PÚBLICAS
+router.post('/register', userController.register); 
+router.post('/login', userController.login); 
 
-// quando o cliente acessar /users, chamaremos a função getAllUsers do controller
-router.get('/', getAllUsers);
+// 2. Rotas PROTEGIDAS (Requerem apenas Login)
+router.get('/profile', authenticateToken, userController.getProfile); 
+
+// 3. Rotas ADMINISTRATIVAS
+router.put(
+    '/promote/:id', 
+    authenticateToken, 
+    checkRole(UserRole.ADMIN), 
+    userController.promoteUser
+);
 
 export default router;

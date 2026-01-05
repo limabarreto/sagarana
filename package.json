@@ -1,21 +1,37 @@
 {
-  "name": "sagarana",
+  "name": "sagrama",
   "version": "1.0.0",
+  "main": "index.js",
   "type": "module",
-  "main": "server.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node server.js"
+    "migrate:dev": "node -r dotenv/config node_modules/prisma/build/index.js migrate dev",
+    "start": "nodemon server.js",
+    "dev": "nodemon server.js"
+,
+    "studio": "node -r dotenv/config node_modules/prisma/build/index.js studio"
   },
-  "keywords": [],
+  "keywords": [
+    "sagarana",
+    "prisma",
+    "express",
+    "backend"
+  ],
   "author": "",
   "license": "ISC",
-  "description": "",
-  "dependencies": {
-    "@prisma/client": "^6.15.0",
-    "cors": "^2.8.5",
+  "description": "Backend para a plataforma acadêmica Sagarana, utilizando Node.js, Express e PostgreSQL/Prisma.",
+  "devDependencies": {
+    "cross-env": "^7.0.3",
     "dotenv": "^17.2.3",
+    "dotenv-cli": "^11.0.0",
+    "nodemon": "^3.1.10",
+    "prisma": "^6.19.0"
+  },
+  "dependencies": {
+    "@prisma/client": "^6.19.0",
+    "bcrypt": "^6.0.0",
+    "cors": "^2.8.5",
     "express": "^5.1.0",
-    "prisma": "^6.15.0"
+    "jsonwebtoken": "^9.0.2"
   }
 }
