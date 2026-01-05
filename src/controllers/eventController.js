@@ -4,17 +4,11 @@ import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
-// src/controllers/eventController.js (continue o arquivo)
-
-// Cria um novo evento (APENAS ADMIN)
 export const createEvent = async (req, res) => {
-    // Pega o ID do usuário (ADMIN) do token JWT
     const submittedById = req.user.userId; 
     
-    // Dados do corpo da requisição
     const { title, description, eventDate, location } = req.body;
 
-    // Converte a data para o formato DateTime esperado pelo Prisma
     const parsedDate = new Date(eventDate);
 
     try {
@@ -24,8 +18,8 @@ export const createEvent = async (req, res) => {
                 description,
                 eventDate: parsedDate,
                 location,
-                submittedById, // ID do ADMIN que está criando o evento
-                isApproved: false, // Começa sempre pendente
+                submittedById, 
+                isApproved: false, 
             },
         });
 
@@ -39,15 +33,11 @@ export const createEvent = async (req, res) => {
     }
 };
 
-// src/controllers/eventController.js (continue o arquivo)
-
-// Retorna todos os eventos APROVADOS (Listagem Pública)
 export const getApprovedEvents = async (req, res) => {
     try {
         const events = await prisma.event.findMany({
             where: { isApproved: true },
-            orderBy: { eventDate: 'asc' }, // Ordena pelo evento mais próximo
-            // Opcional: Incluir o nome do Admin que submeteu o evento
+            orderBy: { eventDate: 'asc' }, 
             include: { submittedBy: { select: { name: true } } } 
         });
         res.json(events);
@@ -57,7 +47,7 @@ export const getApprovedEvents = async (req, res) => {
     }
 };
 
-// Retorna o detalhe de um evento (Público, mas exige aprovação)
+
 export const getEventById = async (req, res) => {
     const { id } = req.params;
     try {
@@ -66,7 +56,7 @@ export const getEventById = async (req, res) => {
             include: { submittedBy: { select: { name: true } } }
         });
 
-        // Só retorna se existir e estiver aprovado
+
         if (!event || !event.isApproved) {
             return res.status(404).json({ error: "Evento não encontrado ou pendente de aprovação." });
         }
@@ -78,14 +68,12 @@ export const getEventById = async (req, res) => {
     }
 };
 
-// src/controllers/eventController.js (continue o arquivo)
 
-// Retorna todos os eventos PENDENTES (APENAS ADMIN)
 export const getPendingEvents = async (req, res) => {
     try {
         const pendingEvents = await prisma.event.findMany({
             where: { isApproved: false },
-            include: { submittedBy: { select: { name: true, email: true } } } // Inclui detalhes para moderação
+            include: { submittedBy: { select: { name: true, email: true } } } 
         });
         res.json(pendingEvents);
     } catch (error) {
@@ -94,7 +82,6 @@ export const getPendingEvents = async (req, res) => {
     }
 };
 
-// Aprova um evento (PUT /api/events/:id/approve) (APENAS ADMIN)
 export const approveEvent = async (req, res) => {
     const { id } = req.params;
     try {

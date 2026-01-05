@@ -1,9 +1,7 @@
 // src/controllers/reviewController.js
 
 import prisma from '../config/prismaClient.cjs';
-// Note que o UserRole não é necessário aqui, mas sim na Rota
 
-// --- 1. GET /api/reviews: Obter Resenhas Aprovadas (PÚBLICA) ---
 export const getApprovedReviews = async (req, res) => {
     const bookId = req.query.bookId; 
 
@@ -13,7 +11,6 @@ export const getApprovedReviews = async (req, res) => {
                 isApproved: true, // Apenas aprovadas
                 ...(bookId && { bookId: parseInt(bookId) }),
             },
-            // Inclui o autor e o livro para contexto
             include: { 
                 author: { select: { name: true } }, 
                 book: { select: { title: true } }
@@ -29,7 +26,7 @@ export const getApprovedReviews = async (req, res) => {
 };
 
 
-// --- 2. GET /api/reviews/:id: Obter Detalhe de uma Resenha (PÚBLICA) ---
+
 export const getReviewById = async (req, res) => {
     const { id } = req.params;
     
@@ -56,7 +53,7 @@ export const getReviewById = async (req, res) => {
 };
 
 
-// --- 3. POST /api/reviews: Submeter Nova Resenha (REQUER LOGIN) ---
+
 export const submitNewReview = async (req, res) => {
     const authorId = req.user.userId; 
     const { content, rating, bookId } = req.body;
@@ -72,7 +69,7 @@ export const submitNewReview = async (req, res) => {
                 rating: parseInt(rating), 
                 bookId: parseInt(bookId),
                 authorId,
-                isApproved: false, // 🚨 CRÍTICO: Inicia como NÃO APROVADA
+                isApproved: false, 
             },
             include: { book: { select: { title: true } } }
         });
@@ -84,13 +81,10 @@ export const submitNewReview = async (req, res) => {
         
     } catch (error) {
         console.error("Erro na submissão da resenha:", error);
-        // P2003 geralmente significa que o bookId não existe (Foreign Key Constraint)
         res.status(500).json({ error: "Erro interno ao submeter resenha. Verifique se o ID do livro é válido." });
     }
 };
 
-
-// --- 4. PUT /api/reviews/:id/approve: Aprovar Resenha (REQUER ADMIN) ---
 export const approveReview = async (req, res) => {
     const { id } = req.params; 
     
@@ -114,7 +108,7 @@ export const approveReview = async (req, res) => {
     }
 };
 
-// --- 5. GET /api/reviews/pending: Obter Resenhas Pendentes (REQUER ADMIN) ---
+
 export const getPendingReviews = async (req, res) => {
     
     try {

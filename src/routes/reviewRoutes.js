@@ -8,14 +8,14 @@ import { UserRole } from '@prisma/client';
 const router = express.Router();
 
 // 1. Rotas PÚBLICAS
-router.get('/', reviewController.getApprovedReviews);     // Lista todas ou filtra por bookId
-router.get('/:id', reviewController.getReviewById);       // Detalhe da resenha
+router.get('/', reviewController.getApprovedReviews);     
+router.get('/:id', reviewController.getReviewById);       
 
-// 2. Rotas PROTEGIDAS (Submissão)
+// 2. Rotas PROTEGIDAS
 // Requer apenas que o usuário esteja logado
 router.post('/', authenticateToken, reviewController.submitNewReview); 
 
-// 3. Rotas ADMINISTRATIVAS (Moderação)
+// 3. Rotas ADMINISTRATIVAS
 // Apenas usuários com role: ADMIN
 router.get(
     '/pending', 

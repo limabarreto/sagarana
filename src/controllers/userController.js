@@ -2,14 +2,12 @@
 
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
-// 🚨 Nota: Certifique-se de que o caminho para o prismaClient.cjs está correto
 import prisma from '../config/prismaClient.cjs'; 
 import { UserRole } from '@prisma/client';     
 
 const JWT_SECRET = process.env.JWT_SECRET; 
 const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || '1d'; 
 
-// --- 1. FUNÇÃO DE REGISTRO (POST /api/users/register) ---
 export const register = async (req, res) => {
     const { email, password, name } = req.body;
     try {
@@ -30,7 +28,7 @@ export const register = async (req, res) => {
     }
 };
 
-// --- 2. FUNÇÃO DE LOGIN (POST /api/users/login) ---
+
 export const login = async (req, res) => {
     const { email, password } = req.body;
     const user = await prisma.user.findUnique({ where: { email } });
@@ -48,7 +46,6 @@ export const login = async (req, res) => {
     res.json({ token, role: user.role, name: user.name });
 };
 
-// --- 3. FUNÇÃO DE PERFIL (GET /api/users/profile) ---
 export const getProfile = async (req, res) => {
     // req.user é injetado pelo authenticateToken
     const userId = req.user.userId; 
@@ -64,7 +61,7 @@ export const getProfile = async (req, res) => {
     res.json(user);
 };
 
-// --- 4. FUNÇÃO ADMINISTRATIVA (PUT /api/users/promote/:id) ---
+
 export const promoteUser = async (req, res) => {
     const { id } = req.params;
     try {

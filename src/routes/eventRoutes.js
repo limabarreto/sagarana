@@ -7,15 +7,15 @@ import { UserRole } from '@prisma/client';
 
 const router = express.Router();
 
-// Rotas PÚBLICAS (Qualquer um pode ver o que já foi aprovado)
+// Rotas PÚBLICAS, ualquer um pode ver o que já foi aprovado
 // GET /api/events: Lista todos os eventos aprovados
 router.get('/', eventController.getApprovedEvents); 
-// GET /api/events/:id: Detalhe do evento (somente se aprovado)
+// GET /api/events/:id: Detalhe do evento, somente se aprovado
 router.get('/:id', eventController.getEventById);
 
-// Rotas ADMINISTRATIVAS (Exigem Token e o papel ADMIN)
+// Rotas ADMINISTRATIVAS, exigem token e o papel ADMIN
 
-// POST /api/events: Cria um novo evento (APENAS ADMIN)
+// POST /api/events: cria um novo evento APENAS ADMIN
 router.post(
     '/', 
     authenticateToken, 
@@ -23,7 +23,7 @@ router.post(
     eventController.createEvent
 );
 
-// GET /api/events/pending: Lista eventos pendentes (APENAS ADMIN)
+// GET /api/events/pending: lista eventos pendentes APENAS ADMIN
 router.get(
     '/pending', 
     authenticateToken, 
@@ -31,7 +31,7 @@ router.get(
     eventController.getPendingEvents
 );
 
-// PUT /api/events/:id/approve: Aprova o evento (APENAS ADMIN)
+// PUT /api/events/:id/approve: aprova o evento APENAS ADMIN
 router.put(
     '/:id/approve', 
     authenticateToken, 

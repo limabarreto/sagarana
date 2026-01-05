@@ -30,16 +30,10 @@ app.get('/', (req, res) => {
 });
 app.post('/teste', (req, res) => res.json({ ok: true }));
 
-// A ROTA PRINCIPAL: Chama o userRoutes.js
+
 app.use('/api/users', userRoutes);
-// 🚨 NOVO: Montagem dos Módulos de Conteúdo
-// O catálogo de Livros/Artigos
 app.use('/api/books', bookRoutes); 
-
-// As resenhas (e seus comentários)
 app.use('/api/reviews', reviewRoutes); 
-
-// Comentários (para criação e buscas por reviewId)
 app.use('/api/comments', commentRoutes);
 app.use('/api/events', eventRoutes);
 app.use((req, res, next) => {
