@@ -1,35 +1,51 @@
-import express from 'express'; // responsável por criar o servidor, definir rotas e lidar com requisições HTTP
-import cors from 'cors'; // permite que o front-end (ou outros clientes) façam requisições ao servidor mesmo que estejam em domínios diferentes
-import dotenv from 'dotenv'; // carrega variáveis de ambiente do arquivo .env, permitindo configurar portas, URLs e senhas sem expor no código
+// server.js (VERSÃO FINAL)
 
-import userRoutes from './src/routes/userRoutes.js'; // importa as rotas relacionadas aos usuários, como registro, login e listagem
+import express from 'express';
+import cors from 'cors';
+import dotenv from 'dotenv';
+// Importa o módulo principal de autenticação (userRoutes)
+import userRoutes from './src/routes/userRoutes.js'; 
+import bookRoutes from './src/routes/bookRoutes.js'; 
+import reviewRoutes from './src/routes/reviewRoutes.js'; 
+import commentRoutes from './src/routes/commentRoutes.js';
+import eventRoutes from './src/routes/eventRoutes.js';
 
-dotenv.config(); // carrega todas as variáveis definidas no arquivo .env, permitindo acesso via process.env e mantendo o projeto seguro e flexível
+// 1. Configuração Inicial e Carregamento de Variáveis de Ambiente
+dotenv.config(); // Carrega variáveis do .env
 
+const app = express();
+const PORT = process.env.PORT || 3000;
+const NODE_ENV = process.env.NODE_ENV || 'development';
 
-const app = express(); // cria a instância do servidor usando express()
-const PORT = process.env.PORT || 3000; // define a porta do servidor. Se PORT não existir no .env, usa 3000 por padrão, garantindo funcionamento local
+// 2. Configuração de Middleware Global
+app.use(cors()); 
+app.use(express.json());
 
-
-app.use(cors()); // libera o acesso externo à API, permitindo que front-ends ou outros serviços consumam as rotas
-app.use(express.json()); // permite que o servidor entenda e processe dados enviados em JSON, formato padrão das APIs modernas
-
-
-// rota raiz (/) apenas para teste, útil para verificar se o servidor está funcionando antes de implementar funcionalidades mais complexas
+// 3. Rotas da API
 app.get('/', (req, res) => {
-   res.send({ 
+    res.send({ 
         message: `Bem-vindo à API Sagarana - Ambiente: ${NODE_ENV}`, 
         version: '1.0.0'
     });
 });
+app.post('/teste', (req, res) => res.json({ ok: true }));
 
+// A ROTA PRINCIPAL: Chama o userRoutes.js
+app.use('/api/users', userRoutes);
+// 🚨 NOVO: Montagem dos Módulos de Conteúdo
+// O catálogo de Livros/Artigos
+app.use('/api/books', bookRoutes); 
 
-// registra as rotas de usuário no caminho /api/users
-// isso significa que qualquer rota definida em userRoutes será acessada começando por /api/users
-app.use('/api/users', userRoutes); 
+// As resenhas (e seus comentários)
+app.use('/api/reviews', reviewRoutes); 
 
+// Comentários (para criação e buscas por reviewId)
+app.use('/api/comments', commentRoutes);
+app.use('/api/events', eventRoutes);
+app.use((req, res, next) => {
+    res.status(404).json({ error: 'Endpoint não encontrado.' });
+});
 
-// inicia o servidor e o coloca para "escutar" a porta definida. A mensagem no console confirma o funcionamento
 app.listen(PORT, () => {
-  console.log(`Servidor rodando na porta ${PORT}`);
+    console.log(`| Servidor Sagarana rodando: http://localhost:${PORT}`);
 });
